@@ -5,9 +5,24 @@ dotenv.config({ path: './.env' });
 
 import express from 'express';
 import connectDB from './db/index.js';
+import { app } from './app.js';
 
 
 connectDB()
+.then(()=>{
+    app.listen(process.env.PORT || 8000,()=>{
+        console.log(`sever started at port:${process.env.PORT || 8000}`);
+    }) 
+    app.on('error',(error)=>{
+              console.error('Error connecting to the database',error);
+              throw error;
+    })
+    app.get('/', (req, res) => {
+        res.send('Hello World!');
+    })
+})
+.catch((err)=>{
+    console.error('Database connection failed:', err)})
 
 /*
 
