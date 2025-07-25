@@ -19,13 +19,18 @@ const userSchema=new Schema({
         type:String,
         required:true,
         unique:true,
+        lowercase:true,
+        trim:true,
     },
     fullName:{
         type:String,
         required:true,
+        trim:true,
+        index:true
     },
     avatar:{
-        type:String,
+        type:String, //cloudinary url
+        required:true,
         default:""
     },
     coverImage:{
@@ -34,8 +39,11 @@ const userSchema=new Schema({
     },
     password:{
         type:String,
-        required:true,
+        required:[true,"Password is required"],
     },
+    refreshToken:{
+        type:String,
+    }
 
 },{timestamps:true})
 
