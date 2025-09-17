@@ -19,6 +19,7 @@ const generateAccessAndRefreshToken=async(userID)=>{
 
 const registerUser=asyncHandler(async(req,res)=>{
     //  get user details from frontend
+    console.log(req.body)
     const {email,username, password, fullName} = req.body;
     
     // validation-not empty
@@ -31,7 +32,7 @@ const registerUser=asyncHandler(async(req,res)=>{
     })
     .then((user)=>{
         if(user){
-            throw new ApiError(409, "User already exists", [], "User Exists");
+            throw new ApiError(401, "User already exists", [], "User Exists");
         }
     })
 
@@ -77,15 +78,17 @@ const registerUser=asyncHandler(async(req,res)=>{
 
 const loginUser=asyncHandler(async(req,res)=>{
     // -> request body data
-    const {email,username,password}=req.body
+    console.log("login")
+    console.log(req.body)
+    const {email,username,password}=req.body;
     
     // username or email
-    if (!username || !email){
+    if (!username && !email){
         throw new ApiError(400,"username or email required")
     }
     
     // find the user
-    const user= User.findOne({
+    const user= await User.findOne({
         $or:[{username},{email}]
     })
     if(!user){
