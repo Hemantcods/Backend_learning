@@ -4,6 +4,7 @@ import { User } from '../models/user.model.js';
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import jwt from "jsonwebtoken"
+import { use } from 'react';
 
 const generateAccessAndRefreshToken=async(userID)=>{
     try {
@@ -179,6 +180,22 @@ const refreshAccessToken=asyncHandler(async(req,res)=>{
         new ApiResponse(200,{access_token,refresh_token},"sucess")
     )
 })
+
+const changePassword = asyncHandler(async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    const user=await User.findById(req._id)
+    if(!(user.isPasswordCorrect(currentPassword))){
+        throw new ApiError(401,"password missmatch")
+    }
+    user.password=newPassword
+    await user.save({ValidateBeforeSave:false})
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,{},"password updated sucessfully"))
+});
+
+
 export {registerUser,
     loginUser,
     logoutUser,
