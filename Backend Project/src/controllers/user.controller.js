@@ -183,7 +183,7 @@ const refreshAccessToken=asyncHandler(async(req,res)=>{
 
 const changePassword = asyncHandler(async (req, res) => {
     const { currentPassword, newPassword } = req.body;
-    const user=await User.findById(req._id)
+    const user=await User.findById(req.user._id)
     if(!(user.isPasswordCorrect(currentPassword))){
         throw new ApiError(401,"password missmatch")
     }
@@ -200,8 +200,29 @@ const getCurrentUser=asyncHandler(async(req,res)=>{
     .status(200)
     .json(new ApiResponse(200,req.user,"user fetched sucessfully"))
 })
+
+const updateUserDetails=asyncHandler(async(req,res)=>{
+    const {fullName,email}=req.body
+    if (!(fullName || email)){
+        throw new ApiError(401,"fullname or password reuuired")
+    }
+    const newuser=User.findByIdAndUpdate(req.user._id,{
+        $set:{
+            fullName,
+            email
+        }
+    },{new:true})
+    .select("-passwoed")
+})
+return res
+.status(200)
+.json(new ApiResponse(200,newuser,"updated sucessfully"))
+
 export {registerUser,
     loginUser,
     logoutUser,
-    refreshAccessToken
+    refreshAccessToken,
+    changePassword,
+    getCurrentUser,
+    updateUserDetails
 }
