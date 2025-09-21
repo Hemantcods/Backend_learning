@@ -270,7 +270,7 @@ const getUserChannelProfile=asyncHandler(async(req,res)=>{
         throw new ApiError(400,"please enter a correct username")
     }
     // User.find()  also correct
-    User.aggregate([
+    const Channel=User.aggregate([
     {
             $match:{
                 username:username?.toLowerCase()
@@ -306,10 +306,27 @@ const getUserChannelProfile=asyncHandler(async(req,res)=>{
                     then:true,
                     else:false
                 }
+            },
+            $project:{
+                fullName:1,
+                username:1,
+                email:1,
+                subscriberCount:1,
+                channelSubscribedToCount:1,
+                isSubscribed:1,
+                avatar:1,
+                coverImage:1
             }
         }
     }
-])
+    ])
+    if (!Channel?.lenght){
+        throw new ApiError(400,"channel data is empty")
+    }
+    console.log(Channel)
+    return res
+    .status(200)
+    .json(new ApiResponse(200,Channel[0],"data of channel"))
  })
 
 export {
