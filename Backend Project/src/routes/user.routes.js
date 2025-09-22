@@ -40,10 +40,12 @@ router.route("/updateUserDetails").post(
 )
 router.route("/updateUserAvatar").post(
     verifyJWT,
+    upload.single("avatar"),
     updateUserAvatar
 )
 router.route("/updateUserCoverImage").post(
     verifyJWT,
+    upload.single("cover"),
     updateUserCoverImage
 )
 
