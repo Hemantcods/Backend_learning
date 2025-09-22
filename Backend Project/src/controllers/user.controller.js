@@ -4,7 +4,8 @@ import { User } from '../models/user.model.js';
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import jwt from "jsonwebtoken"
-import { use } from 'react';
+// ...existing code...
+import mongoose from 'mongoose';
 
 const generateAccessAndRefreshToken = async (userID) => {
     try {
@@ -329,6 +330,56 @@ const getUserChannelProfile=asyncHandler(async(req,res)=>{
     .json(new ApiResponse(200,Channel[0],"data of channel"))
  })
 
+ const getUserWatchHisstory=asyncHandler(async(req,res)=>{
+    console.log(req.user._id
+        
+    );
+    
+    const user=await User.aggregate([
+        {
+            $match:{
+                _id: new mongoose.Types.ObjectId(req.user._id)
+            }
+        },
+        {
+            $lookup:{
+                from:"videos",
+                localField:"watch_history",
+                foreignField:"_id",
+                as:"WatchHistory",
+                pipeline:[
+                    {
+                        $lookup:{
+                        from:"users",
+                        localField:"owner",
+                        foreignField:"_id",
+                        as:"Owner",
+                        pipeline:[
+                            {
+                                $project:{
+                                    fullName:1,
+                                    username:1,
+                                    avatar:1,
+                                }
+                            }
+                        ]
+                    }
+                    },{
+                        $addFields:{
+                            owner:{
+                                $first:"$owner"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ])
+    console.log(user)
+    return res
+    .status(200)
+    .json(new ApiResponse(200,user[0].watchHistory,""))
+ })
 export {
     registerUser,
     loginUser,
@@ -338,5 +389,7 @@ export {
     getCurrentUser,
     updateUserDetails,
     updateUserAvatar,
-    updateUserCoverImage
+    updateUserCoverImage,
+    getUserChannelProfile,
+    getUserWatchHisstory,
 }
